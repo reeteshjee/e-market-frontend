@@ -1,29 +1,28 @@
 
 import { useAuth } from "react-oidc-context";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Header({ cartCount, toggleCart }) {
     const auth = useAuth();
+    const [loggedIn, setLoggedIn] = useState(false);
 
-    const isLoggedIn = () => {
-        if (localStorage.getItem('username')) {
-            return true;
-        }
-        return false;
-    }
     useEffect(() => {
+        setLoggedIn(localStorage.getItem('username'));
+    }, []);
 
+    useEffect(() => {
         if (auth.isAuthenticated) {
-            localStorage.setItem("access_token ", auth.user.access_token);
-            localStorage.setItem("refresh_token ", auth.user.refresh_token);
+            localStorage.setItem("access_token", auth.user.access_token);
+            localStorage.setItem("refresh_token", auth.user.refresh_token);
             localStorage.setItem("expires_at", auth.user.expires_at);
             localStorage.setItem("username", auth.user.profile['cognito:username']);
+            setLoggedIn(auth.user.profile['cognito:username']);
         }
     }, [auth.isAuthenticated]);
 
     const handleLogout = () => {
         localStorage.clear();
-        window.location.reload();
+        setLoggedIn(false);
     };
 
 
@@ -61,7 +60,7 @@ export default function Header({ cartCount, toggleCart }) {
                         </div>
 
 
-                        {isLoggedIn() ? (
+                        {loggedIn ? (
                             <div className="relative group">
                                 <button className="flex items-center">
                                     <i className="fas fa-user-circle text-lg"></i>
@@ -74,7 +73,7 @@ export default function Header({ cartCount, toggleCart }) {
                                         onClick={() => handleLogout()}
                                         className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                                     >
-                                        Logout1
+                                        Logout
                                     </button>
                                 </div>
                             </div>

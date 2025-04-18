@@ -1,6 +1,6 @@
 
 
-export default function CartItem({ item, updateQuantity, removeFromCart }) {
+export default function CartItem({ item, removeFromCart }) {
     return (
         <>
             <div className="flex items-center py-4 border-b">
@@ -8,7 +8,7 @@ export default function CartItem({ item, updateQuantity, removeFromCart }) {
                 <div className="ml-4 flex-1">
                     <h3 className="font-medium">{item.name}</h3>
                     <div className="flex justify-between items-center mt-2">
-                        <span className="font-bold">$24.99</span>
+                        <span className="font-bold">${item.price}</span>
                     </div>
                 </div>
                 <button onClick={() => removeFromCart(item.id)} className="ml-2 text-gray-400 hover:text-red-500">

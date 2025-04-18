@@ -1,0 +1,4 @@
+VITE_COGNITO_AUTHORITY=https://cognito-idp.us-east-1.amazonaws.com/us-east-1_iF6YJQroJ
+VITE_COGNITO_CLIENT_ID=o0caq6tqkn3g500oe6q7ia01a
+VITE_COGNITO_REDIRECT_URI=http://localhost:5173/
+VITE_COGNITO_SCOPE=phone openid email

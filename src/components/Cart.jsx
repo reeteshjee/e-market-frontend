@@ -7,7 +7,7 @@ export default function Cart({ isOpen, onClose, items, updateQuantity, removeFro
     return (
         <>
             <div id="cartOverlay">
-                <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-lg transform transition-transform duration-300">
+                <div className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-lg transform transition-transform duration-300">
                     <div className="p-6 h-full flex flex-col">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold">Your Cart ({items ? items.length : 0})</h2>

@@ -11,6 +11,7 @@ import { useAuth } from "react-oidc-context";
 function App() {
     //auth
     const auth = useAuth();
+    console.log(auth);
     const [loggedIn, setLoggedIn] = useState(false);
     const handleLogout = () => {
         //window.location.href = import.meta.env.VITE_COGNITO_LOGOUT_URI;
@@ -34,7 +35,7 @@ function App() {
             setLoggedIn(false);
         }
         else if (auth.isAuthenticated) {
-            localStorage.setItem("access_token", auth.user.access_token);
+            localStorage.setItem("access_token", auth.user.id_token);
             localStorage.setItem("refresh_token", auth.user.refresh_token);
             localStorage.setItem("expires_at", auth.user.expires_at);
             localStorage.setItem("username", auth.user.profile['cognito:username']);
@@ -55,6 +56,69 @@ function App() {
             item.productId === productId ? { ...item, quantity: Math.max(1, item.quantity + change) } : item
         ));
     };
+
+    //orders
+    const [orders, setOrders] = useState([]);
+    const fetchOrders = async () => {
+        const api_url = `${import.meta.env.VITE_API_URL}/orders`;
+        const token = localStorage.getItem('access_token');
+        try {
+            const response = await fetch(api_url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+            setOrders(data);
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+        }
+    };
+    useEffect(() => {
+        fetchOrders();
+    }, []);
+
+    const placeOrder = async () => {
+        const api_url = `${import.meta.env.VITE_API_URL}/orders`;
+        const token = localStorage.getItem('access_token');
+
+        const orderData = {
+            items: cartItems,
+            totalPrice: cartTotal,
+            shippingAddress: {
+                street: "123 Main St",
+                city: "Fairfield",
+                state: "IA",
+                zip: "52556",
+                country: "USA"
+            },
+            paymentMethod: "CreditCard"
+        };
+
+        try {
+            const response = await fetch(api_url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(orderData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to place order: ${response.status}`);
+            }
+
+            const data = await response.json();
+            setCartItems([]);
+            console.log('Order placed successfully:', data);
+        } catch (error) {
+            console.error('Error placing order:', error);
+        }
+    };
+
 
 
 
@@ -146,6 +210,7 @@ function App() {
                     items={cartItems}
                     removeFromCart={removeFromCart}
                     cartTotal={cartTotal}
+                    placeOrder={placeOrder}
                 />
 
 

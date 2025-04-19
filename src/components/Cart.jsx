@@ -1,6 +1,6 @@
 import CartItem from "./CartItem";
 
-export default function Cart({ isOpen, onClose, items, updateQuantity, removeFromCart, cartTotal }) {
+export default function Cart({ isOpen, onClose, items, updateQuantity, removeFromCart, cartTotal, placeOrder }) {
     return (
         <>
             <div
@@ -37,7 +37,7 @@ export default function Cart({ isOpen, onClose, items, updateQuantity, removeFro
                             <span>Total</span>
                             <span className="font-bold">${cartTotal}</span>
                         </div>
-                        <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-150">
+                        <button onClick={placeOrder} className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-150">
                             Place Order (${cartTotal})
                         </button>
                     </div>

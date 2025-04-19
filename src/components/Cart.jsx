@@ -6,7 +6,7 @@ export default function Cart({ isOpen, onClose, items, updateQuantity, removeFro
 
     return (
         <>
-            <div id="cartOverlay" className="fixed inset-0 bg-black bg-opacity-50 z-50">
+            <div id="cartOverlay">
                 <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-lg transform transition-transform duration-300">
                     <div className="p-6 h-full flex flex-col">
                         <div className="flex justify-between items-center mb-6">

@@ -57,7 +57,7 @@ function App() {
 
     //products
     const fetchProducts = async () => {
-        const api_url = `https://reeteshghimire.com.np/ecommerce-api/get_all_products.php`;
+        const api_url = `${import.meta.env.VITE_API_URL}/products`;
         fetch(api_url)
             .then(res => res.json())
             .then(data => {
@@ -65,7 +65,7 @@ function App() {
             })
     }
     const searchProducts = async (search) => {
-        const api_url = `https://reeteshghimire.com.np/ecommerce-api/search_products.php?search=` + search;
+        const api_url = `${import.meta.env.VITE_API_URL}/products?search=${search}`;
         fetch(api_url)
             .then(res => res.json())
             .then(data => {

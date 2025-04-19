@@ -1,0 +1,8 @@
+aws cloudformation deploy \
+  --template-file frontend.yml \
+  --stack-name ecommerce-fe-stack \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --parameter-overrides \
+   ConnectionArn="YOUR_CONNECTION_ARN" \
+   FullRepositoryId="reeteshjee/e-market-frontend" \
+   GitHubLocation="https://github.com/reeteshjee/e-market-frontend"

@@ -19,7 +19,7 @@ export default function Cart({ isOpen, onClose, items, updateQuantity, removeFro
 
                     <div className="flex-1 overflow-y-auto">
                         {items && items.length > 0 ? (
-                            items.map(item => (
+                            [...items].reverse().map(item => (
                                 <CartItem
                                     key={item.productId}
                                     item={item}

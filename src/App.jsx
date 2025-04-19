@@ -45,6 +45,7 @@ function App() {
 
     //cart
     const [showCart, setShowCart] = useState(false);
+
     const toggleCart = () => setShowCart(!showCart);
     const storedCart = JSON.parse(localStorage.getItem('cart'));
     const [cartItems, setCartItems] = useState(storedCart ?? []);
@@ -54,6 +55,8 @@ function App() {
             item.productId === productId ? { ...item, quantity: Math.max(1, item.quantity + change) } : item
         ));
     };
+
+
 
     //products
     const fetchProducts = async () => {
@@ -97,6 +100,8 @@ function App() {
         } else {
             setCartItems([...cartItems, { ...product, quantity: 1 }]);
         }
+        setShowCart(true);
+
 
     };
     const removeFromCart = (productId) => {
@@ -142,6 +147,8 @@ function App() {
                     removeFromCart={removeFromCart}
                     cartTotal={cartTotal}
                 />
+
+
             </main>
         </>
     )

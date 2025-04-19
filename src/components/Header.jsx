@@ -1,31 +1,19 @@
 
-import { useAuth } from "react-oidc-context";
 import { useEffect, useState } from "react";
 
-export default function Header({ cartCount, toggleCart }) {
-    const auth = useAuth();
-    const [loggedIn, setLoggedIn] = useState(false);
 
-    useEffect(() => {
-        setLoggedIn(localStorage.getItem('username'));
-    }, []);
 
-    useEffect(() => {
-        if (auth.isAuthenticated) {
-            localStorage.setItem("access_token", auth.user.access_token);
-            localStorage.setItem("refresh_token", auth.user.refresh_token);
-            localStorage.setItem("expires_at", auth.user.expires_at);
-            localStorage.setItem("username", auth.user.profile['cognito:username']);
-            setLoggedIn(auth.user.profile['cognito:username']);
+export default function Header({ auth, products, setProducts, searchProducts, loggedIn, handleLogout, cartCount, toggleCart }) {
+    const [search, setSearch] = useState();
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            if (search != '') {
+                searchProducts(search);
+            } else {
+                setProducts(products);
+            }
         }
-    }, [auth.isAuthenticated]);
-
-    const handleLogout = () => {
-        localStorage.clear();
-        setLoggedIn(false);
     };
-
-
     return (
         <>
             <header className="bg-white shadow-sm">
@@ -41,7 +29,13 @@ export default function Header({ cartCount, toggleCart }) {
 
                     <div className="hidden md:flex flex-1 max-w-xl mx-6">
                         <div className="relative w-full">
-                            <input type="text" placeholder="Search products..." className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder="Search products..."
+                                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
                             <div className="absolute left-3 top-2.5 text-gray-400">
                                 <i className="fas fa-search"></i>
                             </div>
@@ -64,7 +58,7 @@ export default function Header({ cartCount, toggleCart }) {
                             <div className="relative group">
                                 <button className="flex items-center">
                                     <i className="fas fa-user-circle text-lg"></i>
-                                    <span className="ml-2 hidden md:inline">{localStorage.getItem('username') || 'User'}</span>
+                                    <span className="ml-2 hidden md:inline">{localStorage.getItem('username')}</span>
                                     <i className="fas fa-chevron-down ml-1 text-xs"></i>
                                 </button>
 
@@ -84,7 +78,7 @@ export default function Header({ cartCount, toggleCart }) {
                             </button>
                         )}
                     </nav>
-                </div >
+                </div>
 
 
                 <div className="md:hidden px-4 pb-4">
@@ -95,7 +89,7 @@ export default function Header({ cartCount, toggleCart }) {
                         </div>
                     </div>
                 </div>
-            </header >
+            </header>
         </>
     );
 }

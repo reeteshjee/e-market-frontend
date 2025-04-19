@@ -1,8 +1,7 @@
 import CartItem from "./CartItem";
-import { useState, useEffect } from "react";
 
 
-export default function Cart({ isOpen, onClose, items, updateQuantity, removeFromCart, total }) {
+export default function Cart({ isOpen, onClose, items, updateQuantity, removeFromCart, cartTotal }) {
     if (!isOpen) return null;
 
     return (
@@ -21,7 +20,7 @@ export default function Cart({ isOpen, onClose, items, updateQuantity, removeFro
                             {items && items.length > 0 ? (
                                 items.map(item => (
                                     <CartItem
-                                        key={item.id}
+                                        key={item.productId}
                                         item={item}
                                         updateQuantity={updateQuantity}
                                         removeFromCart={removeFromCart}
@@ -35,9 +34,9 @@ export default function Cart({ isOpen, onClose, items, updateQuantity, removeFro
                         <div className="pt-4 border-t mt-4">
                             <div className="flex justify-between mb-2">
                                 <span>Total</span>
-                                <span className="font-bold">${total}</span>
+                                <span className="font-bold">${cartTotal}</span>
                             </div>
-                            <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-150">Place Order (${total})</button>
+                            <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-150">Place Order (${cartTotal})</button>
                         </div>
                     </div>
                 </div>

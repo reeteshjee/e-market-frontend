@@ -4,7 +4,7 @@ export default function ProductItem({ product, addToCart }) {
     return (
         <>
             <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition duration-150 overflow-hidden">
-                <img src={product.image} alt={product.name} className="w-full h-48 object-cover" />
+                <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover" />
                 <div className="p-4">
                     <div className="flex justify-between items-start mb-2">
                         <h3 className="font-medium">{product.name}</h3>

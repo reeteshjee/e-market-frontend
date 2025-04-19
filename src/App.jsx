@@ -1,75 +1,150 @@
 import './App.css'
-import Header from './components/Header'
-import ProductList from './components/ProductList'
-import Cart from './components/Cart'
 import { useState, useEffect } from 'react';
+import Header from './components/Header';
+import Cart from './components/Cart';
+import ProductItem from './components/ProductItem';
+
+import { useAuth } from "react-oidc-context";
+
+
 
 function App() {
+    //auth
+    const auth = useAuth();
+    const [loggedIn, setLoggedIn] = useState(false);
+    const handleLogout = () => {
+        //window.location.href = import.meta.env.VITE_COGNITO_LOGOUT_URI;
+        const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID;
+        const logoutUri = import.meta.env.VITE_COGNITO_LOGOUT_URI
+        const cognitoDomain = import.meta.env.VITE_COGNITO_DOMAIN;
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("expires_at");
+        localStorage.removeItem("username");
+        window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+    };
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const loggedOut = urlParams.get('logout');
+        if (loggedOut) {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            localStorage.removeItem("expires_at");
+            localStorage.removeItem("username");
+            setLoggedIn(false);
+        }
+        else if (auth.isAuthenticated) {
+            localStorage.setItem("access_token", auth.user.access_token);
+            localStorage.setItem("refresh_token", auth.user.refresh_token);
+            localStorage.setItem("expires_at", auth.user.expires_at);
+            localStorage.setItem("username", auth.user.profile['cognito:username']);
+            setLoggedIn(auth.user.profile['cognito:username']);
+        }
+    }, [auth]);
 
-  const [showCart, setShowCart] = useState(false);
-  const storedCart = JSON.parse(localStorage.getItem('cart'));
-  const [cartItems, setCartItems] = useState(storedCart);
 
-  const products = [
-    { id: 1, name: 'Premium T-Shirt', price: 24.99, description: 'Classic fit, 100% cotton', image: 'https://mms-images.out.customink.com/mms/images/catalog/cade4ebc1252468e58946fd4b3509688/colors/4104/views/alt/front_large.png?autoNegate=1&design=uaj0-00cy-5555&digest=000000028&ixbg=%23f5f5f5&ixfm=jpeg&ixq=60&ixw=900&placeMax=1&placeMaxPct=0.8&placeUseProduct=1&placeUseView=front' },
-    { id: 2, name: 'Wireless Earbuds', price: 89.99, description: '24-hour battery life, water resistant', image: 'https://m.media-amazon.com/images/I/61Mn590rlnL.jpg' },
-    { id: 3, name: 'Smart Watch', price: 129.99, description: 'Fitness tracking, phone notifications', image: 'https://target.scene7.com/is/image/Target/GUEST_1d1c042e-2121-489f-92d9-98e20c5608ff?wid=800&hei=800&qlt=80&fmt=pjpeg' },
-    { id: 4, name: 'Coffee Maker', price: 59.99, description: '12-cup capacity, programmable', image: 'https://i5.walmartimages.com/asr/1458dfab-fe6c-4b8f-b672-40c0de6b6f31.0b69988981860c27331e02a687b073b7.jpeg?odnHeight=2000&odnWidth=2000&odnBg=FFFFFF' },
-  ];
-
-
-
-
-  const toggleCart = () => setShowCart(!showCart);
-
-  const addToCart = (product) => {
-    if (!cartItems) {
-      setCartItems({ ...product, quantity: 1 });
-    } else {
-      const existingItem = cartItems.find(item => item.id === product.id);
-      if (existingItem) {
+    //cart
+    const [showCart, setShowCart] = useState(false);
+    const toggleCart = () => setShowCart(!showCart);
+    const storedCart = JSON.parse(localStorage.getItem('cart'));
+    const [cartItems, setCartItems] = useState(storedCart ?? []);
+    const [cartCount, setCartCount] = useState(storedCart ? storedCart.length : 0);
+    const updateQuantity = (productId, change) => {
         setCartItems(cartItems.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+            item.productId === productId ? { ...item, quantity: Math.max(1, item.quantity + change) } : item
         ));
-      } else {
-        setCartItems([...cartItems, { ...product, quantity: 1 }]);
-      }
+    };
+
+    //products
+    const fetchProducts = async () => {
+        const api_url = `https://reeteshghimire.com.np/ecommerce-api/get_all_products.php`;
+        fetch(api_url)
+            .then(res => res.json())
+            .then(data => {
+                setProducts(data);
+            })
     }
-  };
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cartItems));
-  }, [cartItems]);
+    const searchProducts = async (search) => {
+        const api_url = `https://reeteshghimire.com.np/ecommerce-api/search_products.php?search=` + search;
+        fetch(api_url)
+            .then(res => res.json())
+            .then(data => {
+                setProducts(data);
+            })
+    }
+    const [products, setProducts] = useState([]);
+
+    useEffect(() => {
+        setLoggedIn(localStorage.getItem('username') ?? false);
+        fetchProducts();
+    }, []);
 
 
-  const removeFromCart = (id) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
-  };
 
-  const cartTotal = Array.isArray(cartItems)
-    ? cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2)
-    : 0;
-  const user = false;
+    //cart functions
+    useEffect(() => {
+        localStorage.setItem('cart', JSON.stringify(cartItems));
+        setCartCount(cartItems.length);
+    }, [cartItems]);
 
-  return (
-    <>
-      <Header cartCount={cartItems ? cartItems.length : 0} user={user} toggleCart={toggleCart} />
-      <main className="container mx-auto px-4 py-8">
-        <section className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">Products</h2>
-          </div>
-          <ProductList products={products} addToCart={addToCart} />
-          <Cart
-            isOpen={showCart}
-            onClose={toggleCart}
-            items={cartItems}
-            removeFromCart={removeFromCart}
-            total={cartTotal}
-          />
-        </section>
-      </main>
-    </>
-  )
+
+    const addToCart = (product) => {
+        const existingItem = cartItems.find(item => item.productId === product.productId);
+        if (existingItem) {
+            setCartItems(cartItems.map(item =>
+                item.productId === product.productId ? { ...item, quantity: item.quantity + 1 } : item
+            ));
+        } else {
+            setCartItems([...cartItems, { ...product, quantity: 1 }]);
+        }
+
+    };
+    const removeFromCart = (productId) => {
+        setCartItems(cartItems.filter(item => item.productId !== productId));
+    };
+    const cartTotal = Array.isArray(cartItems)
+        ? cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2)
+        : 0;
+
+    return (
+        <>
+            <Header
+                auth={auth}
+                loggedIn={loggedIn}
+                cartCount={cartCount}
+                products={products}
+                setProducts={setProducts}
+                searchProducts={searchProducts}
+                handleLogout={handleLogout}
+                toggleCart={toggleCart}
+            />
+            <main className="container mx-auto px-4 py-8">
+                <section className="mb-12">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-bold">Products</h2>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        {products.map(product => (
+                            <ProductItem
+                                key={product.productId}
+                                product={product}
+                                addToCart={addToCart}
+                            />
+                        ))}
+                    </div>
+                </section>
+
+                <Cart
+                    isOpen={showCart}
+                    onClose={toggleCart}
+                    updateQuantity={updateQuantity}
+                    items={cartItems}
+                    removeFromCart={removeFromCart}
+                    cartTotal={cartTotal}
+                />
+            </main>
+        </>
+    )
 }
 
 export default App

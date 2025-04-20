@@ -11,7 +11,7 @@ export default function ProductItem({ product, addToCart }) {
                         <span className="text-blue-600 font-bold">${product.price}</span>
                     </div>
                     <p className="text-gray-500 text-sm mb-4">{product.description}</p>
-                    <button onClick={() => addToCart(product)} className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-150">Add to Cart</button>
+                    <button onClick={() => addToCart(product)} className="cursor-pointer w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-150">Add to Cart</button>
                 </div>
             </div>
         </>

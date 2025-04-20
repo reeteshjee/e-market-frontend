@@ -46,7 +46,7 @@ export default function Header({ auth, products, setProducts, searchProducts, lo
                     <nav className="flex items-center space-x-6">
 
                         <div className="relative">
-                            <button onClick={toggleCart} className="flex items-center">
+                            <button onClick={toggleCart} className="cursor-pointer flex items-center">
                                 <i className="fas fa-shopping-cart text-lg"></i>
                                 <span className="ml-2 hidden md:inline">Cart</span>
                                 <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">{cartCount}</span>
@@ -65,14 +65,14 @@ export default function Header({ auth, products, setProducts, searchProducts, lo
                                 <div className="absolute right-0 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
                                     <button
                                         onClick={() => handleLogout()}
-                                        className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                        className="cursor-pointer block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                                     >
                                         Logout
                                     </button>
                                 </div>
                             </div>
                         ) : (
-                            <button onClick={() => auth.signinRedirect()} className="flex items-center">
+                            <button onClick={() => auth.signinRedirect()} className="cursor-pointer flex items-center">
                                 <i className="fas fa-user-circle text-lg"></i>
                                 <span className="ml-2 hidden md:inline">Login</span>
                             </button>

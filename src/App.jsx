@@ -2,6 +2,7 @@ import './App.css'
 import { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Cart from './components/Cart';
+import Toast from './components/Toast'
 import ProductItem from './components/ProductItem';
 
 import { useAuth } from "react-oidc-context";
@@ -11,35 +12,34 @@ import { useAuth } from "react-oidc-context";
 function App() {
     //auth
     const auth = useAuth();
-    console.log(auth);
     const [loggedIn, setLoggedIn] = useState(false);
     const handleLogout = () => {
         //window.location.href = import.meta.env.VITE_COGNITO_LOGOUT_URI;
         const clientId = import.meta.env.VITE_COGNITO_CLIENT_ID;
         const logoutUri = import.meta.env.VITE_COGNITO_LOGOUT_URI
         const cognitoDomain = import.meta.env.VITE_COGNITO_DOMAIN;
+        clearSession();
+        window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+    };
+    const clearSession = () => {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("expires_at");
         localStorage.removeItem("username");
-        window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
-    };
+        setLoggedIn(false);
+    }
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const loggedOut = urlParams.get('logout');
         if (loggedOut) {
-            localStorage.removeItem("access_token");
-            localStorage.removeItem("refresh_token");
-            localStorage.removeItem("expires_at");
-            localStorage.removeItem("username");
-            setLoggedIn(false);
+            clearSession();
         }
         else if (auth.isAuthenticated) {
             localStorage.setItem("access_token", auth.user.id_token);
             localStorage.setItem("refresh_token", auth.user.refresh_token);
             localStorage.setItem("expires_at", auth.user.expires_at);
-            localStorage.setItem("username", auth.user.profile['cognito:username']);
-            setLoggedIn(auth.user.profile['cognito:username']);
+            localStorage.setItem("username", auth.user.profile.email);
+            setLoggedIn(auth.user.profile.email);
         }
     }, [auth]);
 
@@ -76,25 +76,27 @@ function App() {
             console.error('Error fetching orders:', error);
         }
     };
+
+
     useEffect(() => {
-        fetchOrders();
-    }, []);
+        if (loggedIn) {
+            fetchOrders();
+        }
+    }, [loggedIn]);
+
 
     const placeOrder = async () => {
+        console.log(loggedIn);
+        if (!loggedIn) {
+            showToast("Please login to place order", 'error');
+            return;
+        }
         const api_url = `${import.meta.env.VITE_API_URL}/orders`;
         const token = localStorage.getItem('access_token');
 
         const orderData = {
             items: cartItems,
-            totalPrice: cartTotal,
-            shippingAddress: {
-                street: "123 Main St",
-                city: "Fairfield",
-                state: "IA",
-                zip: "52556",
-                country: "USA"
-            },
-            paymentMethod: "CreditCard"
+            totalPrice: parseFloat(cartTotal)
         };
 
         try {
@@ -112,11 +114,23 @@ function App() {
             }
 
             const data = await response.json();
+            showToast("Order has been placed");
             setCartItems([]);
-            console.log('Order placed successfully:', data);
+            fetchOrders();
         } catch (error) {
             console.error('Error placing order:', error);
         }
+    };
+
+    //Toast
+    const [toast, setToast] = useState(null);
+
+    const showToast = (message, type = "success") => {
+        setToast({ message, type });
+    };
+
+    const hideToast = () => {
+        setToast(null);
     };
 
 
@@ -165,6 +179,7 @@ function App() {
             setCartItems([...cartItems, { ...product, quantity: 1 }]);
         }
         setShowCart(true);
+        showToast("Added to cart");
 
 
     };
@@ -211,7 +226,9 @@ function App() {
                     removeFromCart={removeFromCart}
                     cartTotal={cartTotal}
                     placeOrder={placeOrder}
+                    orders={orders}
                 />
+                {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
 
 
             </main>

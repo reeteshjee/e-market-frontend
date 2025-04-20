@@ -1,4 +1,9 @@
-VITE_COGNITO_AUTHORITY=https://cognito-idp.us-east-1.amazonaws.com/us-east-1_iF6YJQroJ
-VITE_COGNITO_CLIENT_ID=o0caq6tqkn3g500oe6q7ia01a
-VITE_COGNITO_REDIRECT_URI=http://localhost:5173/
+VITE_COGNITO_AUTHORITY=https://cognito-idp.us-east-1.amazonaws.com/us-east-1_WGMPo0Lsb
+VITE_COGNITO_CLIENT_ID=jo00vd54fnvq157tbddn6v0k9
+VITE_COGNITO_DOMAIN=https://us-east-1wgmpo0lsb.auth.us-east-1.amazoncognito.com
+
+VITE_COGNITO_REDIRECT_URI=https://d3pwmfkm40j9r2.cloudfront.net
+VITE_COGNITO_LOGOUT_URI=https://d3pwmfkm40j9r2.cloudfront.net/?logout=1
 VITE_COGNITO_SCOPE=phone openid email
+
+VITE_API_URL=https://meswlk0rri.execute-api.us-east-1.amazonaws.com/dev

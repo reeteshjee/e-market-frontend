@@ -1,9 +1,0 @@
-#cartOverlay::before {
-    content: '';
-    position: fixed;
-    height: 100%;
-    width: 100%;
-    left: 0;
-    top: 0;
-    background: 0000007d;
-}

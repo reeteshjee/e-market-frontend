@@ -72,7 +72,7 @@ export default function Cart({
                                             Date: {new Date(order.createdAt).toLocaleDateString()}
                                         </p>
                                         <p>Total: ${order.totalPrice}</p>
-                                        <p>Status: ${order.status}</p>
+                                        <p>Status: {order.orderStatus}</p>
                                         <ul className="mt-2 ml-3 list-disc">
                                             {order.items.map((item, idx) => (
                                                 <li key={idx}>

@@ -145,13 +145,16 @@ function App() {
                 setProducts(data);
             })
     }
-    const searchProducts = async (search) => {
-        const api_url = `${import.meta.env.VITE_API_URL}/products?search=${search}`;
+
+
+    const searchProducts = async (keyword) => {
+        const api_url = `${import.meta.env.VITE_API_URL}/products?search=${keyword}`;
         fetch(api_url)
             .then(res => res.json())
             .then(data => {
                 setProducts(data);
-            })
+            });
+
     }
     const [products, setProducts] = useState([]);
 
@@ -197,7 +200,7 @@ function App() {
                 loggedIn={loggedIn}
                 cartCount={cartCount}
                 products={products}
-                setProducts={setProducts}
+                fetchProducts={fetchProducts}
                 searchProducts={searchProducts}
                 handleLogout={handleLogout}
                 toggleCart={toggleCart}

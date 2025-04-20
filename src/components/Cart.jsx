@@ -40,7 +40,7 @@ export default function Cart({
                                     }`}
                                 onClick={() => setActiveTab("history")}
                             >
-                                History
+                                Orders
                             </button>
                         </div>
                         <button onClick={onClose} className="text-xl cursor-pointer text-gray-500 hover:text-gray-700">
@@ -72,6 +72,7 @@ export default function Cart({
                                             Date: {new Date(order.createdAt).toLocaleDateString()}
                                         </p>
                                         <p>Total: ${order.totalPrice}</p>
+                                        <p>Status: ${order.status}</p>
                                         <ul className="mt-2 ml-3 list-disc">
                                             {order.items.map((item, idx) => (
                                                 <li key={idx}>
@@ -103,7 +104,7 @@ export default function Cart({
                         </div>
                     )}
                 </div>
-            </div>
+            </div >
         </>
     );
 }

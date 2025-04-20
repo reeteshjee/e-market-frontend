@@ -3,14 +3,14 @@ import { useEffect, useState } from "react";
 
 
 
-export default function Header({ auth, products, setProducts, searchProducts, loggedIn, handleLogout, cartCount, toggleCart }) {
-    const [search, setSearch] = useState();
+export default function Header({ auth, products, fetchProducts, searchProducts, loggedIn, handleLogout, cartCount, toggleCart }) {
+    const [search, setSearch] = useState('');
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
             if (search != '') {
                 searchProducts(search);
             } else {
-                setProducts(products);
+                fetchProducts(products);
             }
         }
     };
@@ -83,7 +83,14 @@ export default function Header({ auth, products, setProducts, searchProducts, lo
 
                 <div className="md:hidden px-4 pb-4">
                     <div className="relative w-full">
-                        <input type="text" placeholder="Search products..." className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            type="text"
+                            placeholder="Search products..."
+                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
                         <div className="absolute left-3 top-2.5 text-gray-400">
                             <i className="fas fa-search"></i>
                         </div>

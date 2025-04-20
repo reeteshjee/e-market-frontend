@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Complete setup with S3, CloudFront, CodePipeline and CodeBuild
+Description: Complete setup with S3, CloudFront, CodePipeline, and CodeBuild
 
 Parameters:
   ConnectionArn:
@@ -7,30 +7,45 @@ Parameters:
     Description: CodeStar Connection ARN for GitHub
   FullRepositoryId:
     Type: String
-    Description: Github RepositoryID
+    Description: GitHub Repository ID
   GitHubLocation:
     Type: String
     Description: Full URL of Git Repo
-
+  S3BucketReact:
+    Type: String
+    Description: S3 bucket that hosts react
+  S3BucketArtifacats:
+    Type: String
+    Description: S3 bucket to store artifact    
+  ViteCognitoAuthority:
+    Type: String
+    Description: Cognito Authority URL
+  ViteCognitoClientId:
+    Type: String
+    Description: Cognito Client ID
+  ViteCognitoDomain:
+    Type: String
+    Description: Cognito Domain URL
+  ViteCognitoScope:
+    Type: String
+    Description: Cognito Scope
+  ViteApiUrl:
+    Type: String
+    Description: API URL for the backend
 
 Resources:
-
-  ## S3 bucket for frontend hosting ##
   ReactAppBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: ecommerce-frontend-team-srt
+      BucketName: !Ref S3BucketReact
       OwnershipControls:
         Rules:
           - ObjectOwnership: BucketOwnerEnforced
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
-        BlockPublicPolicy: false
+        BlockPublicPolicy: true
         IgnorePublicAcls: true
-        RestrictPublicBuckets: false
-      WebsiteConfiguration:
-        IndexDocument: index.html
-        ErrorDocument: index.html
+        RestrictPublicBuckets: true
 
   BucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -39,11 +54,25 @@ Resources:
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
-          - Sid: PublicReadGetObject
+          - Sid: AllowCloudFrontAccess
             Effect: Allow
-            Principal: "*"
+            Principal:
+              Service: cloudfront.amazonaws.com
             Action: "s3:GetObject"
             Resource: !Sub "arn:aws:s3:::${ReactAppBucket}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+            
+  FrontendCloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: FrontendAppOAC
+        Description: Origin access control for CloudFront to S3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+        OriginAccessControlOriginType: s3
 
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
@@ -55,15 +84,16 @@ Resources:
           - DomainName: !GetAtt ReactAppBucket.RegionalDomainName
             Id: S3Origin
             S3OriginConfig: {}
+            OriginAccessControlId: !Ref FrontendCloudFrontOAC
         DefaultCacheBehavior:
-          AllowedMethods: 
+          AllowedMethods:
             - GET
             - HEAD
           CachedMethods:
             - GET
             - HEAD
           TargetOriginId: S3Origin
-          ViewerProtocolPolicy: redirect-to-https
+          ViewerProtocolPolicy: allow-all
           ForwardedValues:
             QueryString: false
             Cookies:
@@ -73,17 +103,15 @@ Resources:
         HttpVersion: http2
         PriceClass: PriceClass_100
 
-  ## Artifact Bucket for Pipeline ##
   ArtifactBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: my-artifact-store-unique-name-srt-fe
+      BucketName: !Ref S3BucketArtifacats
 
-  ## IAM Roles ##
   CodePipelineRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: CodePipelineServiceRole
+      RoleName: CodePipelineServiceRole-staging
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -97,7 +125,7 @@ Resources:
   CodeBuildRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: CodeBuildServiceRole
+      RoleName: CodeBuildServiceRole-Staging
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -108,20 +136,34 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AdministratorAccess
 
-  ## CodeBuild Project ##
   CodeBuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
       Name: EcommerceFrontend
       Source:
-        Type: GITHUB
+        Type: CODEPIPELINE
         Location: !Ref GitHubLocation
       Artifacts:
-        Type: NO_ARTIFACTS
+        Type: CODEPIPELINE
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/standard:7.0
+        EnvironmentVariables:
+          - Name: VITE_COGNITO_AUTHORITY
+            Value: !Ref ViteCognitoAuthority
+          - Name: VITE_COGNITO_CLIENT_ID
+            Value: !Ref ViteCognitoClientId
+          - Name: VITE_COGNITO_DOMAIN
+            Value: !Ref ViteCognitoDomain
+          - Name: VITE_COGNITO_REDIRECT_URI
+            Value: !Sub "https://${CloudFrontDistribution.DomainName}"
+          - Name: VITE_COGNITO_LOGOUT_URI
+            Value: !Sub "https://${CloudFrontDistribution.DomainName}?logout=1"
+          - Name: VITE_COGNITO_SCOPE
+            Value: !Ref ViteCognitoScope
+          - Name: VITE_API_URL
+            Value: !Ref ViteApiUrl
       ServiceRole: !GetAtt CodeBuildRole.Arn
       LogsConfig:
         CloudWatchLogs:
@@ -130,7 +172,7 @@ Resources:
           StreamName: build-output-log
       TimeoutInMinutes: 300
 
-  ## CodePipeline ##
+ 
   MyPipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
@@ -138,7 +180,7 @@ Resources:
       RoleArn: !GetAtt CodePipelineRole.Arn
       ArtifactStore:
         Type: S3
-        Location: my-artifact-store-unique-name-srt-fe
+        Location: !Ref S3BucketArtifacats
       Stages:
         - Name: Source
           Actions:

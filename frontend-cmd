@@ -3,6 +3,13 @@ aws cloudformation deploy \
   --stack-name ecommerce-fe-stack \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameter-overrides \
-   ConnectionArn="YOUR_CONNECTION_ARN" \
-   FullRepositoryId="reeteshjee/e-market-frontend" \
-   GitHubLocation="https://github.com/reeteshjee/e-market-frontend"
+    ConnectionArn="your-arn" \
+    FullRepositoryId="Sushilkarki77/e-market-frontend" \
+    GitHubLocation="https://github.com/Sushilkarki77/e-market-frontend" \
+    ViteCognitoAuthority="https://cognito-idp.us-east-1.amazonaws.com/us-east-1_WGMPo0Lsb" \
+    ViteCognitoClientId="jo00vd54fnvq157tbddn6v0k9" \
+    ViteCognitoDomain="https://us-east-1wgmpo0lsb.auth.us-east-1.amazoncognito.com" \
+    ViteCognitoScope="phone openid email" \
+    ViteApiUrl="https://meswlk0rri.execute-api.us-east-1.amazonaws.com/dev" \
+    S3BucketReact="ecommerce-frontend-team-srt" \
+    S3BucketArtifacats="ecommerce-frontend-artifacts-srt"

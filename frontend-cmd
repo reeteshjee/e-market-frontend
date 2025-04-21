@@ -3,13 +3,27 @@ aws cloudformation deploy \
   --stack-name ecommerce-fe-stack \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameter-overrides \
-    ConnectionArn="your-arn" \
+    ConnectionArn="" \
     FullRepositoryId="Sushilkarki77/e-market-frontend" \
     GitHubLocation="https://github.com/Sushilkarki77/e-market-frontend" \
-    ViteCognitoAuthority="https://cognito-idp.us-east-1.amazonaws.com/us-east-1_WGMPo0Lsb" \
-    ViteCognitoClientId="jo00vd54fnvq157tbddn6v0k9" \
-    ViteCognitoDomain="https://us-east-1wgmpo0lsb.auth.us-east-1.amazoncognito.com" \
+    ViteCognitoAuthority="https://cognito-idp.us-east-1.amazonaws.com/us-east-1_Xfk2pK0z7" \
+    ViteCognitoClientId="6q5k6e0vsvu9p55svgrua69ocm" \
+    ViteCognitoDomain="https://ecommerce-sk-app-login.auth.us-east-1.amazoncognito.com" \
     ViteCognitoScope="phone openid email" \
-    ViteApiUrl="https://meswlk0rri.execute-api.us-east-1.amazonaws.com/dev" \
+    ViteApiUrl="https://idh97btdp1.execute-api.us-east-1.amazonaws.com/dev" \
     S3BucketReact="ecommerce-frontend-team-srt" \
     S3BucketArtifacats="ecommerce-frontend-artifacts-srt"
+
+
+     # add cognito domain
+    aws cognito-idp create-user-pool-domain \
+      --domain ecommerce-sk-app-login \
+      --user-pool-id us-east-1_Xfk2pK0z7 \
+      --region us-east-1
+
+
+
+      # check cognito client id
+      aws cognito-idp list-user-pool-clients \
+          --user-pool-id us-east-1_Xfk2pK0z7 \
+          --region us-east-1
